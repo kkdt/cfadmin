@@ -1,0 +1,57 @@
+#!/bin/bash
+#
+
+#
+# Help usage
+#
+function usage() {
+    echo "Usage: $0 <action> [<stackname>]"
+    echo "   generate-parameters                  : Generate the parameters file to use for MAENV stack"
+    echo "   upload-templates                     : Upload CloudFormation templates to the stack's S3 workspace"
+    echo "   upload-artifacts                     : Upload deployable artifacts to the stack's S3 workspace"
+    echo "   create <stackname>                   : Create a stack, updating it if possible"
+    echo "   update <stackname>                   : Update a stack"
+    echo "   delete <stackname>                   : Delete a stack"
+    echo "   delete-all <stackname>               : Delete a stack and respective application bucket"
+    echo "   describe <stackname>                 : Describe a stack"
+    echo "   s3list                               : List all buckets allowed with your credentials"
+}
+
+CURRENTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [ ! -f "${CURRENTDIR}/cfadmin.env" ]; then
+    echo "Error: Installation environment not found ${CURRENTDIR}/cfadmin.env"
+    exit 1
+fi
+
+action=$1
+shift
+
+case "$action" in
+    "help"|"-h"|"--help")
+        usage
+        exit 0
+        ;;
+esac
+
+source ${CURRENTDIR}/cfadmin.env
+
+case "$action" in
+    "help"|"-h"|"--help")
+        usage
+        ;;
+
+    # This is provided to initialize a "workspace" for each application on AWS and is only intended to be run once. The
+    # action is not publicized to avoid confusion.
+    "cfworkspace")
+        cfinit "$@"
+        exit $?
+        ;;
+
+    *)
+        usage
+        exit 1
+        ;;
+esac
+
+

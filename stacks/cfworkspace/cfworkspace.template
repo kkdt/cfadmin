@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: cfadmin devops stack
+
+Parameters:
+    app:
+        Type: String
+        Default: cfadmin
+        Description: Application Name
+    env:
+        Type: String
+        Default: cfadmin
+        Description: cfadmin deployment environment
+
+Resources:
+    #
+    appbucket:
+        Type: AWS::S3::Bucket
+        DeletionPolicy: Delete
+        Properties:
+            AccessControl: PublicRead
+            #BucketName: !Sub ${app}
+            Tags:
+            -
+                Key: "Application"
+                Value: !Sub ${app}
+            -
+                Key: "Env"
+                Value: !Sub ${env}
+
+    #
+    appbucketpolicy:
+        Type: AWS::S3::BucketPolicy
+        Properties:
+            Bucket:
+                Ref: "appbucket"
+            PolicyDocument:
+                Statement:
+                -
+                    Action:
+                        - "s3:*"
+                    Effect: "Allow"
+                    Resource:
+                        Fn::Join: [ '', [ "arn:aws:s3:::", !Ref appbucket, "/*"] ]
+                    Principal: "*"
+                    # Currently the principal cannot be an IAM group
+                    # TODO: Lock this down
+Outputs:
+    BucketURL:
+        Value: !GetAtt
+            - appbucket
+            - WebsiteURL
+        Description: URL for CloudFormation templates hosted on S3
+    Bucket:
+        Value: !Ref appbucket
+        Description: The bucket logical ID
+    BucketARN:
+        Value: !GetAtt [ appbucket, Arn ]
+        Description: Template Bucket ARN

@@ -1,0 +1,10 @@
+[
+  {
+    "ParameterKey": "app",
+    "ParameterValue": "cfadmin"
+  },
+  {
+    "ParameterKey": "env",
+    "ParameterValue": "cfadmin"
+  }
+]
